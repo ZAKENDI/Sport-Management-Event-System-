@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Event</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            color: #333;
+            text-align: center;
+        }
+
+        label {
+            font-size: 1.2em;
+            color: #333;
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .form-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    Create New Event
+</header>
+
+<div class="container">
+    <h1>Create New Event</h1>
+    <form action="/create-event" method="post" id="eventForm" class="form-container">
+        <label for="eventName">Event Name:</label>
+        <input type="text" id="eventName" name="eventName" required><br>
+
+        <label for="eventDate">Event Date (YYYY-MM-DD):</label>
+        <input type="date" id="eventDate" name="eventDate" required><br>
+
+        <label for="sportType">Sport Type:</label>
+        <input type="text" id="sportType" name="sportType" required><br>
+
+        <button type="submit">Create Event</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('eventForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const eventName = document.getElementById('eventName').value;
+        const eventDate = document.getElementById('eventDate').value;
+        const sportType = document.getElementById('sportType').value;
+
+        const eventData = {
+            eventName: eventName,
+            eventDate: eventDate,
+            sportType: sportType
+        };
+
+        fetch('/create-event', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(eventData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    window.location.href = "/events"; // Redirect to events page
+                } else {
+                    alert(data.error || "Error creating event.");
+                }
+            })
+            .catch(error => alert("Error: " + error));
+    });
+</script>
+</body>
+</html>

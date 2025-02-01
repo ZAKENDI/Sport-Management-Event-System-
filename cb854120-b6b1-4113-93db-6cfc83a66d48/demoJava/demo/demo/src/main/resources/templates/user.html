@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e8f5e9;
+      color: #1b5e20;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #1b5e20;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      padding: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #c8e6c9;
+      color: #1b5e20;
+    }
+    td input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #c8e6c9;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #1b5e20;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #4caf50;
+    }
+    a {
+      text-decoration: none;
+      color: #1b5e20;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 20px;
+    }
+    a:hover {
+      color: #4caf50;
+    }
+  </style>
+  <script>
+    async function updateUser() {
+      const userData = {
+        first_name: document.getElementById('firstName').value,
+        last_name: document.getElementById('lastName').value,
+        nickname: document.getElementById('nickname').value,
+        phone_number: document.getElementById('phoneNumber').value,
+        profile_picture_url: document.getElementById('profilePictureUrl').value
+      };
+
+      try {
+        const response = await fetch('/update-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        alert(result.message || 'User details updated successfully!');
+      } catch (error) {
+        console.error(error);
+        alert('Failed to update user details.');
+      }
+    }
+  </script>
+</head>
+<body>
+<header>
+  <h1>User Dashboard</h1>
+</header>
+
+<div class="container">
+  <h2>Welcome, <span th:text="${user.firstName} + ' ' + ${user.lastName}">[User Name]</span></h2>
+
+  <h3>Your Details</h3>
+  <form onsubmit="event.preventDefault(); updateUser();">
+    <table>
+      <tr>
+        <th>First Name</th>
+        <td><input type="text" id="firstName" th:value="${user.firstName}" required></td>
+      </tr>
+      <tr>
+        <th>Last Name</th>
+        <td><input type="text" id="lastName" th:value="${user.lastName}" required></td>
+      </tr>
+      <tr>
+        <th>Nickname</th>
+        <td><input type="text" id="nickname" th:value="${user.nickname}" required></td>
+      </tr>
+      <tr>
+        <th>Phone Number</th>
+        <td><input type="text" id="phoneNumber" th:value="${user.phoneNumber}" required></td>
+      </tr>
+      <tr>
+        <th>Profile Picture URL</th>
+        <td><input type="text" id="profilePictureUrl" th:value="${user.profilePictureUrl}"></td>
+      </tr>
+    </table>
+    <button type="submit">Update</button>
+  </form>
+
+  <a href="/logout">Logout</a>
+</div>
+</body>
+</html>

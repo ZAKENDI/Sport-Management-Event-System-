@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e8f5e9;
+            color: #1b5e20;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1b5e20;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        .container {
+            padding: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #c8e6c9;
+            color: #1b5e20;
+        }
+        button {
+            background-color: #1b5e20;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #4caf50;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            text-align: center;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Events List</h1>
+</header>
+
+<div class="container">
+    <h3>All Events</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Event Name</th>
+            <th>Creator</th>
+            <th>Event Date</th>
+            <th>Sport Type</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="event : ${events}">
+            <td th:text="${event.eventName}"></td>
+            <td th:text="${event.createrFullname}"></td>
+            <td th:text="${event.eventDate}"></td>
+            <td th:text="${event.sportType}"></td>
+            <td>
+                <button onclick="openRegisterModal('${event.id}', '${event.eventName}')">Register</button>
+                <button onclick="showParticipants('${event.id}')">Show Participants</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <a href="/go_home" class="back-btn">Back to Home</a>
+</div>
+
+<!-- Modal for Registering -->
+<div id="registerModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeRegisterModal()">&times;</span>
+        <h3>Register for Event</h3>
+        <form id="registerForm" onsubmit="submitRegistration(event)">
+            <input type="hidden" id="eventId" name="eventId">
+            <label for="participantName">Your Name:</label>
+            <input type="text" id="participantName" name="participantName" required><br><br>
+            <label for="participantEmail">Your Email:</label>
+            <input type="email" id="participantEmail" name="participantEmail" required><br><br>
+            <label for="participantPhone">Your Phone Number:</label>
+            <input type="tel" id="participantPhone" name="participantPhone" required placeholder="8-777-777-77-77" maxlength="16" oninput="formatPhoneNumber(this)"><br><br>
+            <button type="submit">Submit Registration</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Participants -->
+<div id="participantsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3>Participants</h3>
+        <ul id="participantsList"></ul>
+    </div>
+</div>
+
+<script>
+    // Store participants in memory
+    let participantsData = {};
+
+    function openRegisterModal(eventId, eventName) {
+        document.getElementById('eventId').value = eventId;
+        document.getElementById('registerModal').style.display = 'flex';
+    }
+
+    function closeRegisterModal() {
+        document.getElementById('registerModal').style.display = 'none';
+    }
+
+    function formatPhoneNumber(input) {
+        let phone = input.value.replace(/\D/g, ''); // Remove all non-digit characters
+        if (phone.length > 1) {
+            phone = '8-' + phone; // Add '8-' at the beginning
+        }
+        if (phone.length > 5) {
+            phone = phone.slice(0, 5) + '-' + phone.slice(5); // Add the first hyphen after the third digit
+        }
+        if (phone.length > 9) {
+            phone = phone.slice(0, 9) + '-' + phone.slice(9); // Add the second hyphen after the sixth digit
+        }
+        if (phone.length > 12) {
+            phone = phone.slice(0, 12) + '-' + phone.slice(12); // Add the third hyphen after the ninth digit
+        }
+        input.value = phone;
+    }
+
+    function submitRegistration(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+
+        // Get event ID and participant details
+        const eventId = formData.get('eventId');
+        const participantName = formData.get('participantName');
+        const participantEmail = formData.get('participantEmail');
+        const participantPhone = formData.get('participantPhone');
+
+        // If the event doesn't exist in participantsData, create it
+        if (!participantsData[eventId]) {
+            participantsData[eventId] = [];
+        }
+
+        // Check if the participant already exists by email
+        const existingParticipantIndex = participantsData[eventId].findIndex(
+            participant => participant.email === participantEmail
+        );
+
+        // If the participant already exists, remove the first registration
+        if (existingParticipantIndex !== -1) {
+            participantsData[eventId].splice(existingParticipantIndex, 1); // Remove the first registration
+        }
+
+        // Add the new participant
+        participantsData[eventId].push({ name: participantName, email: participantEmail, phone: participantPhone });
+
+        alert('Successfully registered!');
+
+        // Close the registration modal
+        closeRegisterModal();
+    }
+
+    function showParticipants(eventId) {
+        // Check if participants exist for the given event
+        const participantsList = document.getElementById('participantsList');
+        participantsList.innerHTML = '';
+        const participants = participantsData[eventId] || [];
+
+        if (participants.length === 0) {
+            const li = document.createElement('li');
+            li.textContent = 'No participants yet.';
+            participantsList.appendChild(li);
+        } else {
+            participants.forEach(participant => {
+                const li = document.createElement('li');
+                li.textContent = `${participant.name} (${participant.email}, ${participant.phone})`;
+                participantsList.appendChild(li);
+            });
+        }
+
+        document.getElementById('participantsModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('participantsModal').style.display = 'none';
+    }
+</script>
+</body>
+</html>

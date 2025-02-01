@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e8f5e9;
+            color: #1b5e20;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1b5e20;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        .container {
+            padding: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #c8e6c9;
+            color: #1b5e20;
+        }
+        td input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #c8e6c9;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #1b5e20;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #4caf50;
+        }
+        a {
+            text-decoration: none;
+            color: #1b5e20;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        a:hover {
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Admin Dashboard</h1>
+</header>
+
+<div class="container">
+    <h2>Welcome, <span th:text="${adminName}">Admin Name</span></h2>
+
+    <h3>Users</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Nickname</th>
+            <th>Phone Number</th>
+            <th>Profile Picture</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <form th:action="@{/update-user/{id}(id=${user.id})}" method="post">
+                <td><input type="text" th:value="${user.firstName}" name="firstName" required /></td>
+                <td><input type="text" th:value="${user.lastName}" name="lastName" required /></td>
+                <td><input type="text" th:value="${user.nickname}" name="nickname" required /></td>
+                <td><input type="text" th:value="${user.phoneNumber}" name="phoneNumber" required /></td>
+                <td><input type="text" th:value="${user.profilePictureUrl}" name="profilePictureUrl" required /></td>
+                <td>
+                    <button type="submit">Update</button>
+                </td>
+            </form>
+            <form th:action="@{/delete-user/{id}(id=${user.id})}" method="post">
+                <td>
+                    <button type="submit" style="background-color: red;">Delete</button>
+                </td>
+            </form>
+        </tr>
+        </tbody>
+    </table>
+    <a href="/go_home" class="back-btn">Back to Home</a>
+</div>
+
+</body>
+</html>

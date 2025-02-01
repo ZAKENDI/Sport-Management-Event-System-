@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sports Event Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e8f5e9; /* Light green */
+      color: #1b5e20; /* Dark green */
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    header {
+      background-color: #1b5e20;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+    }
+    .sidebar {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      text-align: center;
+    }
+    .sidebar img {
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+    }
+    .sidebar h3 {
+      margin: 10px 0;
+    }
+    .sidebar ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .sidebar li {
+      margin: 0.5rem 0;
+    }
+    .sidebar a {
+      text-decoration: none;
+      color: #1b5e20;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    .sidebar a:hover {
+      color: #4caf50;
+    }
+    .calendar {
+      text-align: center;
+    }
+    .calendar select {
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      border: 1px solid #c8e6c9;
+      border-radius: 4px;
+    }
+    .calendar table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .calendar th, .calendar td {
+      border: 1px solid #c8e6c9;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    .events-list ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .events-list li {
+      background-color: #c8e6c9; /* Light green */
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border-radius: 4px;
+      color: #1b5e20; /* Dark green */
+    }
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 30%;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+    .modal input[type="text"],
+    .modal input[type="password"] {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .modal button {
+      background-color: #1b5e20;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .modal button:hover {
+      background-color: #4caf50;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    td.marked {
+      background-color: #4caf50; /* Зеленый для выделенных дней */
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Sports Event Dashboard</h1>
+</header>
+
+<!-- Modal -->
+<div id="loginModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="text" id="nickname" name="nickname" placeholder="Nickname" required>
+      <input type="password" id="password" name="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Sidebar Section -->
+  <div class="sidebar">
+    <img id="profilePicture" src="" alt="User Picture">
+    <h3><a id="userName" href="/user"></a></h3>
+    <ul>
+      <li><a href="/vse">All Users</a></li>
+      <li><a href="/admin">Admin Panel</a></li>
+      <li><a href="/create">Create new event</a></li>
+      <li><a href="/events">Show events</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Dashboard Section -->
+  <div class="card">
+    <h2>Training Plan</h2>
+    <div class="calendar">
+      <label for="month-select">Select Month:</label>
+      <select id="month-select" onchange="updateCalendar()">
+        <option value="0">January</option>
+        <option value="1">February</option>
+        <option value="2">March</option>
+        <option value="3">April</option>
+        <option value="4">May</option>
+        <option value="5">June</option>
+        <option value="6">July</option>
+        <option value="7">August</option>
+        <option value="8">September</option>
+        <option value="9">October</option>
+        <option value="10">November</option>
+        <option value="11">December</option>
+      </select>
+      <table id="calendar-table">
+        <thead>
+        <tr>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thu</th>
+          <th>Fri</th>
+          <th>Sat</th>
+          <th>Sun</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Events Section -->
+<div class="container">
+  <div class="card events-list">
+    <h2>Upcoming Events</h2>
+    <ul>
+      <li>World Cup Qualifier Match: 31/01/2025</li>
+      <li>World Boxing Gala: 04/02/2025</li>
+      <li>National Football Cup: 14/02/2025</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  // Генерация календаря для выбранного месяца 2025 года
+  function generateCalendar(month) {
+    const daysInMonth = new Date(2025, month + 1, 0).getDate();
+    const firstDay = new Date(2025, month, 1).getDay();
+    const calendarBody = document.querySelector("#calendar-table tbody");
+    calendarBody.innerHTML = "";
+
+    let date = 1;
+    for (let i = 0; i < 6; i++) {
+      const row = document.createElement("tr");
+
+      for (let j = 0; j < 7; j++) {
+        const cell = document.createElement("td");
+
+        if ((i === 0 && j < (firstDay || 7) - 1) || date > daysInMonth) {
+          cell.textContent = "";
+        } else {
+          cell.textContent = date;
+          cell.dataset.date = date; // Store the date in a data attribute
+
+          // Check if this date is marked
+          const savedMarkedDays = JSON.parse(localStorage.getItem(`markedDays_${month}`)) || [];
+          if (savedMarkedDays.includes(date)) {
+            cell.classList.add('marked');
+          }
+
+          cell.addEventListener('click', function() {
+            this.classList.toggle('marked');
+            saveMarkedDays(month);
+          });
+          date++;
+        }
+        row.appendChild(cell);
+      }
+      calendarBody.appendChild(row);
+
+      if (date > daysInMonth) {
+        break;
+      }
+    }
+  }
+  function saveMarkedDays(month) {
+    const markedDays = [];
+    const cells = document.querySelectorAll(`#calendar-table td.marked`);
+    cells.forEach(cell => {
+      markedDays.push(parseInt(cell.textContent)); // Save the date of each marked cell
+    });
+    localStorage.setItem(`markedDays_${month}`, JSON.stringify(markedDays));
+  }
+
+  // Обновить календарь при смене месяца
+  function updateCalendar() {
+    const selectedMonth = parseInt(document.getElementById("month-select").value);
+    generateCalendar(selectedMonth);
+    // Сохраняем выбранный месяц в localStorage
+    localStorage.setItem("selectedMonth", selectedMonth);
+  }
+
+  // Загрузка данных пользователя и установка картинки профиля
+  function loadUserProfile() {
+    fetch('/api/user-details') // Запрос к серверу для получения данных пользователя
+            .then(response => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error('User not logged in');
+              }
+            })
+            .then(data => {
+              // Устанавливаем имя пользователя
+              document.getElementById('userName').textContent = `${data.first_name} ${data.last_name}`;
+
+              // Устанавливаем картинку профиля
+              const profilePicture = document.getElementById('profilePicture');
+              profilePicture.src = data.profile_picture_url || 'default-profile.png'; // Если картинки нет, ставим по умолчанию
+            })
+            .catch(error => {
+              console.error('Error fetching user details:', error);
+            });
+  }
+
+  // Инициализация
+  window.onload = function () {
+    // Получаем выбранный месяц из localStorage (по умолчанию Январь)
+    const savedMonth = localStorage.getItem("selectedMonth") || 0;
+    generateCalendar(savedMonth); // Генерация календаря для выбранного месяца
+    document.getElementById('loginModal').style.display = 'block'; // Показываем модальное окно
+
+    // Загружаем данные пользователя
+    loadUserProfile();
+  };
+
+  // Закрыть модальное окно
+  function closeModal() {
+    document.getElementById('loginModal').style.display = 'none';
+  }
+
+  // Обработка формы логина
+  document.getElementById('loginForm').onsubmit = function (event) {
+    event.preventDefault();
+
+    const nickname = document.getElementById('nickname').value;
+    const password = document.getElementById('password').value;
+
+    fetch('/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ nickname, password }), // Отправляем данные пользователя
+    })
+            .then(response => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error('Invalid login credentials');
+              }
+            })
+            .then(data => {
+              closeModal(); // Закрываем модальное окно
+              document.getElementById('userName').textContent = `${data.first_name} ${data.last_name}`; // Обновляем имя
+              document.getElementById('profilePicture').src = data.profile_picture_url || 'default-profile.png'; // Обновляем картинку профиля
+              alert(`Welcome, ${data.first_name} ${data.last_name}`);
+            })
+            .catch(error => {
+              console.error('Error during login:', error);
+              alert('Login failed. Please check your nickname and password.');
+            });
+  };
+</script>
+</body>
+</html>

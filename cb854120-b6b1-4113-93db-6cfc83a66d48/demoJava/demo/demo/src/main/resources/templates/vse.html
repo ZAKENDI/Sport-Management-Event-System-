@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Users List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e8f5e9;
+      color: #1b5e20;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #1b5e20;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      padding: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #c8e6c9;
+      color: #1b5e20;
+    }
+    td img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+    button {
+      background-color: #1b5e20;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #4caf50;
+    }
+    a {
+      text-decoration: none;
+      color: #1b5e20;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 20px;
+    }
+    a:hover {
+      color: #4caf50;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Users List</h1>
+</header>
+
+<div class="container">
+  <h3>All Users</h3>
+  <table>
+    <thead>
+    <tr>
+      <th>Nickname</th>
+      <th>Phone Number</th>
+      <th>Profile Picture</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+      <td th:text="${user.nickname}"></td>
+      <td th:text="${user.phoneNumber}"></td>
+      <td><img th:src="@{${user.profilePictureUrl}}" alt="Profile Picture" /></td>
+    </tr>
+    </tbody>
+  </table>
+  <a href="/go_home" class="back-btn">Back to Home</a>
+</div>
+</body>
+</html>
